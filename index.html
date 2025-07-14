@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Mart - Tu Tienda de Productos Digitales</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Fallback color si la imagen no carga */
+            /* Imagen de fondo de ciudad gamer */
+            background-image: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover; /* Cubre todo el área */
+            background-position: center; /* Centra la imagen */
+            background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
+            color: #e2e8f0; /* Color de texto claro por defecto para el body */
+            min-height: 100vh; /* Asegura que el cuerpo ocupe al menos toda la altura de la ventana */
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6; /* Mejora la legibilidad del texto */
+        }
+        /* Estilos para las tarjetas de producto */
+        .product-card {
+            background-color: rgba(255, 255, 255, 0.6); /* Fondo blanco con 60% de opacidad para más transparencia */
+            backdrop-filter: blur(3px); /* Desenfoque sutil para mejorar legibilidad del contenido */
+            -webkit-backdrop-filter: blur(3px); /* Compatibilidad con Safari */
+            border-radius: 1.25rem; /* Bordes más redondeados (rounded-2xl) */
+            border: 2px solid #cbd5e0; /* Borde para el "marco" */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* Espacio entre elementos */
+            padding: 2rem; /* Más espaciado interno */
+            text-align: center;
+            min-height: 280px; /* Altura mínima para uniformidad */
+            color: #2d3748; /* Color de texto oscuro para el contenido de la tarjeta */
+        }
+        .product-card:hover {
+            transform: translateY(-5px); /* Efecto de elevación */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #4299e1; /* Borde azul al pasar el ratón */
+        }
+        /* Estilos para los botones primarios */
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); /* Gradiente vibrante */
+            color: white;
+            padding: 0.85rem 2rem; /* Más padding */
+            border-radius: 0.75rem; /* rounded-xl */
+            font-weight: 700; /* font-bold */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4); /* Sombra para el botón */
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(118, 75, 162, 0.6);
+        }
+        /* Estilos para el texto con gradiente */
+        .gradient-text {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900; /* Extra bold */
+        }
+
+        /* Estilos para el modal (ventana emergente) */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente oscuro para el modal */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #ffffff; /* Fondo blanco para el contenido del modal */
+            margin: auto;
+            padding: 2.5rem; /* Más padding */
+            border-radius: 1rem; /* Bordes más redondeados */
+            width: 95%; /* Ancho responsivo */
+            max-width: 550px; /* Ancho máximo ligeramente mayor */
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); /* Sombra más grande */
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* Animación de entrada */
+            color: #2d3748; /* Color de texto oscuro dentro del modal */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #4a5568; /* Color oscuro para el botón de cerrar */
+            font-size: 1.8rem; /* Tamaño más grande */
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover {
+            color: #718096; /* Color un poco más claro al pasar el ratón */
+        }
+        /* Contenedor para el campo de número de tarjeta y logos */
+        .card-number-input-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            /* No hay borde aquí, se aplica directamente al input */
+        }
+        .card-number-input-group .card-logo {
+            height: 24px; /* Tamaño del logo */
+            margin-right: 8px; /* Espacio entre el logo y el input */
+            display: none; /* Oculto por defecto */
+            flex-shrink: 0; /* Evita que el logo se encoja */
+        }
+        .card-number-input-group input {
+            flex-grow: 1; /* El input tomará el espacio restante */
+            /* Los estilos de borde y padding ya se definen globalmente para .modal input[type="text"] */
+        }
+        /* Estilo para los campos de formulario dentro del modal */
+        .modal input[type="text"],
+        .modal select {
+            background-color: #ffffff; /* Fondo blanco para los inputs */
+            color: #1a202c; /* Color de texto oscuro para los inputs */
+            border: 1px solid #cbd5e0; /* Borde claro para los inputs */
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .modal input[type="text"]:focus,
+        .modal select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+
+        /* Fondos semi-transparentes para secciones principales */
+        header, main section, footer {
+            background-color: rgba(255, 255, 255, 0.85); /* Blanco con 85% de opacidad */
+            backdrop-filter: blur(5px); /* Efecto de desenfoque para el fondo */
+            -webkit-backdrop-filter: blur(5px); /* Compatibilidad con Safari */
+            border: 2px solid #cbd5e0; /* Borde para el "marco" */
+            border-radius: 1.25rem; /* Bordes redondeados */
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 1200px; /* Ancho máximo */
+            margin-bottom: 2rem; /* Espacio entre secciones */
+        }
+        /* Eliminar margen inferior del último section para que el footer no tenga doble margen */
+        main section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* El main en sí no tiene fondo para que la imagen de fondo del body se vea entre las secciones */
+        main {
+            background-color: transparent;
+        }
+        /* Ajustar colores de texto para legibilidad sobre el fondo semi-transparente */
+        header .text-gray-700,
+        main section .text-gray-700,
+        main section .text-gray-800,
+        main section .text-gray-600,
+        footer .text-gray-600 {
+            color: #2d3748; /* Restaurar colores de texto oscuro */
+            text-shadow: none; /* Eliminar sombra de texto */
+        }
+        header .text-blue-600,
+        main section .text-blue-600 { /* Color de precios */
+            color: #4299e1; /* Un azul más oscuro para el tema claro */
+            text-shadow: none;
+        }
+    </style>
+</head>
+<body class="relative">
+    <!-- Encabezado -->
+    <header class="py-4 shadow-lg z-10 px-4">
+        <nav class="container mx-auto flex flex-col sm:flex-row justify-between items-center">
+            <a href="#" class="text-3xl font-extrabold gradient-text mb-2 sm:mb-0">Digital Mart</a>
+            <ul class="flex space-x-6">
+                <li><a href="#productos" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300 transform hover:scale-105">Productos</a></li>
+                <li><a href="#metodos-pago" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300 transform hover:scale-105">Pagos</a></li>
+                <li><a href="#contacto" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300 transform hover:scale-105">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Sección Hero -->
+    <main class="flex-grow">
+        <section class="container mx-auto text-center py-20 px-4">
+            <h1 class="text-5xl sm:text-6xl font-extrabold leading-tight mb-6 gradient-text">
+                Tu Acceso al Mundo Digital
+            </h1>
+            <p class="text-xl sm:text-2xl text-gray-700 mb-10 max-w-3xl mx-auto opacity-90">
+                Descubre una vasta selección de productos digitales a precios increíbles. ¡Entrega instantánea, diversión ilimitada!
+            </p>
+            <a href="#productos" class="btn-primary inline-block transform hover:scale-105">
+                Explorar Productos
+            </a>
+        </section>
+
+        <!-- Sección de Productos -->
+        <section id="productos" class="container mx-auto py-16 px-4">
+            <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text">Nuestros Productos Destacados</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Producto 1: Netflix -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Netflix</h3>
+                    <p class="text-gray-600 text-lg mb-4">Suscripción mensual para películas y series ilimitadas.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$15.99</p>
+                    <button class="btn-primary" onclick="openModal('Netflix', '15.99')">Comprar Ahora</button>
+                </div>
+
+                <!-- Producto 2: Spotify -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Spotify Premium</h3>
+                    <p class="text-gray-600 text-lg mb-4">Música sin anuncios, descargas y calidad de audio superior.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$9.99</p>
+                    <button class="btn-primary" onclick="openModal('Spotify Premium', '9.99')">Comprar Ahora</button>
+                </div>
+
+                <!-- Producto 3: Steam -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Tarjeta Regalo Steam</h3>
+                    <p class="text-gray-600 text-lg mb-4">Crédito digital para comprar tus juegos favoritos en Steam.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$19.99</p>
+                    <button class="btn-primary" onclick="openModal('Tarjeta Regalo Steam', '19.99')">Comprar Ahora</button>
+                </div>
+
+                <!-- Producto 4: Xbox -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Xbox Game Pass</h3>
+                    <p class="text-gray-600 text-lg mb-4">Acceso ilimitado a una biblioteca de más de 100 juegos.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$14.99</p>
+                    <button class="btn-primary" onclick="openModal('Xbox Game Pass', '14.99')">Comprar Ahora</button>
+                </div>
+
+                <!-- Producto 5: Microsoft Office -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Microsoft Office 365</h3>
+                    <p class="text-gray-600 text-lg mb-4">Licencia anual para Word, Excel, PowerPoint y más.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$18.99</p>
+                    <button class="btn-primary" onclick="openModal('Microsoft Office 365', '18.99')">Comprar Ahora</button>
+                </div>
+
+                <!-- Producto 6: Adobe Creative Cloud (ejemplo) -->
+                <div class="product-card">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-2">Adobe Photoshop</h3>
+                    <p class="text-gray-600 text-lg mb-4">Suscripción mensual a la herramienta líder de edición de imágenes.</p>
+                    <p class="text-blue-600 text-3xl font-bold mb-4">$17.50</p>
+                    <button class="btn-primary" onclick="openModal('Adobe Photoshop', '17.50')">Comprar Ahora</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Métodos de Pago -->
+        <section id="metodos-pago" class="container mx-auto py-16 px-4 text-center">
+            <h2 class="text-4xl font-extrabold mb-12 gradient-text">Métodos de Pago Seguros</h2>
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-12">
+                <div class="flex flex-col items-center">
+                    <p class="text-xl font-semibold text-gray-800">Tarjetas de Crédito/Débito</p>
+                    <p class="text-gray-600 text-lg">Visa, MasterCard, American Express</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <p class="text-xl font-semibold text-gray-800">PayPal</p>
+                    <p class="text-gray-600 text-lg">Compra de forma rápida y segura.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Contacto -->
+        <section id="contacto" class="container mx-auto py-16 px-4 text-center">
+            <h2 class="text-4xl font-extrabold mb-8 gradient-text">Contáctanos</h2>
+            <p class="text-lg text-gray-700 mb-4">¿Tienes alguna pregunta o necesitas ayuda?</p>
+            <p class="text-lg text-gray-700">Envíanos un correo a: <a href="mailto:soporte@digitalmart.com" class="text-blue-600 hover:underline">soporte@digitalmart.com</a></p>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="py-8 mt-auto shadow-inner">
+        <div class="container mx-auto text-center text-gray-600 text-sm px-4">
+            <p>&copy; 2025 Digital Mart. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Confirmación de Compra -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3 class="text-3xl font-bold gradient-text mb-4">Confirmar Compra</h3>
+            <p class="text-lg text-gray-700 mb-2">Estás a punto de comprar:</p>
+            <p id="modalProductName" class="text-xl font-semibold text-gray-900 mb-2"></p>
+            <p class="text-lg text-gray-700 mb-4">Por un total de: <span id="modalProductPrice" class="text-blue-600 font-bold"></span></p>
+
+            <div class="mb-6">
+                <label for="paymentMethod" class="block text-gray-700 text-sm font-bold mb-2 text-left">Método de Pago:</label>
+                <select id="paymentMethod" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white">
+                    <option value="card">Tarjeta de Crédito/Débito</option>
+                    <option value="paypal">PayPal</option>
+                </select>
+            </div>
+
+            <!-- Sección de Información de la Tarjeta -->
+            <div id="cardDetailsSection" class="hidden">
+                <h4 class="text-xl font-semibold text-gray-900 mb-4 mt-6 text-left">Información de la Tarjeta</h4>
+
+                <!-- Nombre del Titular -->
+                <div class="mb-4">
+                    <label for="cardholderName" class="block text-gray-700 text-sm font-bold mb-2 text-left">Nombre del Titular:</label>
+                    <input type="text" id="cardholderName" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="Nombre en la tarjeta">
+                </div>
+
+                <!-- Número de Tarjeta con Logo Detector -->
+                <div class="mb-4">
+                    <label for="cardNumber" class="block text-gray-700 text-sm font-bold mb-2 text-left">Número de Tarjeta:</label>
+                    <div class="card-number-input-group">
+                        <!-- Logos de tarjetas (ocultos por defecto) -->
+                        <img id="visaLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" class="card-logo">
+                        <img id="mastercardLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2000px-Mastercard-logo.svg.png" alt="Mastercard" class="card-logo">
+                        <img id="amexLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo.svg/1200px-American_Express_logo.svg.png" alt="American Express" class="card-logo">
+                        <input type="text" id="cardNumber" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="XXXX XXXX XXXX XXXX" onkeyup="detectCardType()" onchange="detectCardType()">
+                    </div>
+                </div>
+
+                <!-- Fecha de Caducidad y CVV -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="expiryDate" class="block text-gray-700 text-sm font-bold mb-2 text-left">Fecha de Caducidad:</label>
+                        <input type="text" id="expiryDate" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="MM/AA">
+                    </div>
+                    <div>
+                        <label for="cvv" class="block text-gray-700 text-sm font-bold mb-2 text-left">CVV:</label>
+                        <input type="text" id="cvv" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="XXX">
+                    </div>
+                </div>
+
+
+                <h4 class="text-xl font-semibold text-gray-900 mb-4 mt-6 text-left">Dirección de Facturación</h4>
+                <div class="mb-4">
+                    <label for="billingAddress" class="block text-gray-700 text-sm font-bold mb-2 text-left">Dirección:</label>
+                    <input type="text" id="billingAddress" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="Calle, número, apartamento">
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="billingCity" class="block text-gray-700 text-sm font-bold mb-2 text-left">Ciudad:</label>
+                        <input type="text" id="billingCity" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="Ciudad">
+                    </div>
+                    <div>
+                        <label for="billingPostalCode" class="block text-gray-700 text-sm font-bold mb-2 text-left">Código Postal:</label>
+                        <input type="text" id="billingPostalCode" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white" placeholder="XXXXX">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="billingCountry" class="block text-gray-700 text-sm font-bold mb-2 text-left">País:</label>
+                    <select id="billingCountry" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-900 leading-tight focus:outline-none focus:shadow-outline bg-white">
+                        <option value="">Selecciona un país</option>
+                        <option value="Argentina">Argentina</option>
+                        <option value="Bolivia">Bolivia</option>
+                        <option value="Chile">Chile</option>
+                        <option value="Colombia">Colombia</option>
+                        <option value="Costa Rica">Costa Rica</option>
+                        <option value="Cuba">Cuba</option>
+                        <option value="Ecuador">Ecuador</option>
+                        <option value="El Salvador">El Salvador</option>
+                        <option value="España">España</option>
+                        <option value="Estados Unidos">Estados Unidos</option>
+                        <option value="Guatemala">Guatemala</option>
+                        <option value="Honduras">Honduras</option>
+                        <option value="México">México</option>
+                        <option value="Nicaragua">Nicaragua</option>
+                        <option value="Panamá">Panamá</option>
+                        <option value="Paraguay">Paraguay</option>
+                        <option value="Perú">Perú</option>
+                        <option value="Puerto Rico">Puerto Rico</option>
+                        <option value="República Dominicana">República Dominicana</option>
+                        <option value="Uruguay">Uruguay</option>
+                        <option value="Venezuela">Venezuela</option>
+                        <option value="Canadá">Canadá</option>
+                        <option value="Reino Unido">Reino Unido</option>
+                        <option value="Alemania">Alemania</option>
+                        <option value="Francia">Francia</option>
+                        <option value="Italia">Italia</option>
+                        <option value="Brasil">Brasil</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Japón">Japón</option>
+                        <option value="China">China</option>
+                        <option value="India">India</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary w-full" onclick="processPurchase()">Confirmar y Pagar</button>
+        </div>
+    </div>
+
+    <script>
+        // Obtener elementos del DOM
+        const purchaseModal = document.getElementById('purchaseModal');
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const cardDetailsSection = document.getElementById('cardDetailsSection');
+        const cardNumberInput = document.getElementById('cardNumber');
+        const billingCountrySelect = document.getElementById('billingCountry');
+
+        // Logos de tarjetas
+        const visaLogo = document.getElementById('visaLogo');
+        const mastercardLogo = document.getElementById('mastercardLogo');
+        const amexLogo = document.getElementById('amexLogo');
+
+        // Función para abrir el modal de compra
+        function openModal(productName, productPrice) {
+            document.getElementById('modalProductName').textContent = productName;
+            document.getElementById('modalProductPrice').textContent = `$${productPrice}`;
+            paymentMethodSelect.value = 'card'; // Establecer 'Tarjeta' como valor predeterminado al abrir
+            toggleCardDetails(); // Mostrar la sección de tarjeta por defecto
+            purchaseModal.style.display = 'flex'; // Mostrar el modal
+        }
+
+        // Función para cerrar el modal
+        function closeModal() {
+            purchaseModal.style.display = 'none'; // Ocultar el modal
+            // Limpiar campos del formulario al cerrar el modal (opcional)
+            cardNumberInput.value = '';
+            document.getElementById('expiryDate').value = '';
+            document.getElementById('cvv').value = '';
+            document.getElementById('cardholderName').value = '';
+            document.getElementById('billingAddress').value = '';
+            document.getElementById('billingCity').value = '';
+            document.getElementById('billingPostalCode').value = '';
+            billingCountrySelect.value = ''; // Limpiar la selección de país
+            hideAllCardLogos(); // Ocultar todos los logos de tarjetas
+        }
+
+        // Función para alternar la visibilidad de los detalles de la tarjeta
+        function toggleCardDetails() {
+            if (paymentMethodSelect.value === 'card') {
+                cardDetailsSection.classList.remove('hidden');
+            } else {
+                cardDetailsSection.classList.add('hidden');
+            }
+        }
+
+        // Función para ocultar todos los logos de tarjetas
+        function hideAllCardLogos() {
+            visaLogo.style.display = 'none';
+            mastercardLogo.style.display = 'none';
+            amexLogo.style.display = 'none';
+        }
+
+        // Función para detectar el tipo de tarjeta y mostrar el logo
+        function detectCardType() {
+            const cardNumber = cardNumberInput.value.replace(/\s/g, ''); // Eliminar espacios
+            hideAllCardLogos(); // Ocultar todos los logos antes de detectar
+
+            // Visa: Empieza con 4
+            if (cardNumber.startsWith('4')) {
+                visaLogo.style.display = 'block';
+            }
+            // Mastercard: Empieza con 51-55 o 2221-2720
+            else if (cardNumber.match(/^(5[1-5]|222[1-9]|22[3-9]\d|2[3-6]\d{2}|27[0-1]\d|2720)\d*$/)) {
+                mastercardLogo.style.display = 'block';
+            }
+            // American Express: Empieza con 34 o 37
+            else if (cardNumber.startsWith('34') || cardNumber.startsWith('37')) {
+                amexLogo.style.display = 'block';
+            }
+        }
+
+        // Escuchar cambios en el selector de método de pago
+        paymentMethodSelect.addEventListener('change', toggleCardDetails);
+
+        // Escuchar cambios en el campo de número de tarjeta
+        cardNumberInput.addEventListener('keyup', detectCardType);
+        cardNumberInput.addEventListener('change', detectCardType);
+
+
+        // Función para procesar la compra (simulada)
+        function processPurchase() {
+            const productName = document.getElementById('modalProductName').textContent;
+            const productPrice = document.getElementById('modalProductPrice').textContent;
+            const paymentMethod = paymentMethodSelect.value;
+            let purchaseMessage = `¡Compra exitosa!\nProducto: ${productName}\nPrecio: ${productPrice}\n`;
+
+            if (paymentMethod === 'card') {
+                const cardNumber = cardNumberInput.value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                const cardholderName = document.getElementById('cardholderName').value;
+                const billingAddress = document.getElementById('billingAddress').value;
+                const billingCity = document.getElementById('billingCity').value;
+                const billingPostalCode = document.getElementById('billingPostalCode').value;
+                const billingCountry = billingCountrySelect.value; // Obtener valor del select
+
+                // Validación básica de campos de tarjeta
+                if (!cardNumber || !expiryDate || !cvv || !cardholderName || !billingAddress || !billingCity || !billingPostalCode || !billingCountry) {
+                    alert('Por favor, complete todos los campos de la tarjeta y dirección de facturación.');
+                    return; // Detener la función si los campos están vacíos
+                }
+
+                purchaseMessage += `Método de pago: Tarjeta\n`;
+                purchaseMessage += `Número de Tarjeta: **** **** **** ${cardNumber.slice(-4)}\n`; // Mostrar solo los últimos 4 dígitos
+                purchaseMessage += `Titular: ${cardholderName}\n`;
+                purchaseMessage += `Dirección de Facturación: ${billingAddress}, ${billingCity}, ${billingPostalCode}, ${billingCountry}\n`;
+
+            } else if (paymentMethod === 'paypal') {
+                purchaseMessage += `Método de pago: PayPal\n`;
+            }
+
+            purchaseMessage += `Gracias por tu compra.`;
+
+            // Simulación de una alerta de éxito (reemplazar con una UI de mensaje real)
+            alert(purchaseMessage);
+
+            closeModal(); // Cerrar el modal después de la "compra"
+        }
+    </script>
+</body>
+</html>
